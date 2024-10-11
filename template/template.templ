@@ -1,9 +1,32 @@
 package template
 
-import "github.com/webdevfuel/htmx-empty-state/template/layout"
+import (
+	"fmt"
+	"github.com/webdevfuel/htmx-empty-state/task"
+	"github.com/webdevfuel/htmx-empty-state/template/layout"
+)
 
-templ HelloWorld() {
+templ EmptyState(tasks []task.Task) {
 	@layout.Layout() {
-		<p class="text-center">Hello, world!</p>
+		<div class="space-y-2 mt-2" id="tasks">
+			@EmptyCard()
+			for _, task := range tasks {
+				@Row(task)
+			}
+		</div>
+		<button hx-post="/tasks" hx-target="#tasks" hx-swap="beforeend" class="rounded-lg p-2 bg-blue-600 hover:bg-blue-800 text-white mt-4">Add Task</button>
 	}
+}
+
+templ Row(task task.Task) {
+	<div id={ fmt.Sprintf("task-%s", task.ID) } class="flex items-center justify-between border border-gray-100 rounded-lg p-2">
+		<p class="text-lg">{ task.Name }</p>
+		<button type="button" hx-target={ fmt.Sprintf("#task-%s", task.ID) } hx-swap="delete" hx-delete={ fmt.Sprintf("/tasks/%s", task.ID) } class="rounded-lg p-1 bg-red-600 hover:bg-red-800 text-white text-sm">Delete Task</button>
+	</div>
+}
+
+templ EmptyCard() {
+	<div class="last:block hidden border border-gray-100 rounded-lg p-2">
+		Oops! No tasks were created yet.
+	</div>
 }
